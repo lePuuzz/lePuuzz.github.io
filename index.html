@@ -1,80 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Fridays for Future München</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="description" content="Fridays for Future München">
-
-    <link rel="icon" href="./assets/img/fff_icon.png">
-    <link rel="stylesheet" href="./assets/css/main.css">
-    <link rel="stylesheet" href="./assets/css/schedule.css">
-
-
-    <!--<script src="assets/ical.js"></script>-->
-    <script src="assets/showdown.min.js"></script>
-
-    <!-- Emoji script for chrome -->
-    <script src="assets/twemoji.min.js"></script>
-    <script defer data-domain="fff-muc.de" src="https://tracking.fff-muc.de/js/plausible.js"></script>
-</head>
-
+<html>
 <body>
-<section id="header">
-    <div>
-        <a href="index.html">
-          <img src="./assets/img/fff_muc_logo.png" class="header-logo" alt="Fridays for Future München">
-        </a>
-        <div class="header">
-          <span class="site-title">Pressebereich</span>
-        </div>
-    </div>
-    <div style="height: 22vw; max-height: 240px"></div>
-    <h1 class="site-heading"> Pressebereich </h1>
-</section>
+<input type="file" id="imageUpload" />
+<button onclick="analyzeImage()">Analyze</button>
+<script>
+const colors = {
+    'rot': [255, 0, 0],
+    'gelb': [255, 255, 0],
+    'schwarz': [0, 0, 0],
+    'grün': [0, 128, 0],
+    'lila': [128, 0, 128],
+    'rosa': [255, 192, 203],
+    'orange': [255, 165, 0],
+    'blau': [0, 0, 255]
+};
 
-<h1>Farbenrechner</h1>
-    <form method="POST" enctype="multipart/form-data">
-        <label for="file">Bild hochladen:</label>
-        <input type="file" id="file" name="file" accept="image/*"><br>
-        <label for="size">Größe in Metern:</label>
-        <input type="number" id="size" name="size" min="0"><br>
-        <label for="colors">Farben in Litern:</label><br>
-        <div id="colorInputs">
-            <div>
-                <select name="color">
-                    <option value="rot">Rot</option>
-                    <option value="grün">Grün</option>
-                    <option value="blau">Blau</option>
-                    <option value="gelb">Gelb</option>
-                    <option value="orange">Orange</option>
-                    <option value="lila">Lila</option>
-                    <option value="braun">Braun</option>
-                    <option value="rosa">Rosa</option>
-                </select>:
-                <input type="number" name="liters" min="0">
-            </div>
-        </div>
-        <button type="button" onclick="addColorInput()">Weitere Farbe hinzufügen</button><br>
-        <input type="submit" value="Berechnen">
-    </form>
-
-    {% if missing_colors %}
-    <h2>Ergebnisse:</h2>
-    {% for color, liters in missing_colors.items() %}
-        <p>Sie benötigen {{ liters }} Liter mehr von der Farbe {{ color }}.</p>
-    {% endfor %}
-    {% endif %}
-
-    <script>
-    function addColorInput() {
-        var colorInputs = document.getElementById('colorInputs');
-        var newInput = document.createElement('div');
-        newInput.innerHTML = '<select name="color"><option value="rot">Rot</option><option value="grün">Grün</option><option value="blau">Blau</option><option value="gelb">Gelb</option><option value="orange">Orange</option><option value="lila">Lila</option><option value="braun">Braun</option><option value="rosa">Rosa</option></select>:<input type="number" name="liters" min="0">';
-        colorInputs.appendChild(newInput);
+function closestColor(rgb) {
+    let colorDiff = Infinity;
+    let closestColor;
+    for (let color in colors) {
+        const diff = Math.abs(rgb[0] - colors[color][0]) + Math.abs(rgb[1] - colors[color][1]) + Math.abs(rgb[2] - colors[color][2]);
+        if (diff < colorDiff) {
+            colorDiff = diff;
+            closestColor = color;
+        }
     }
-    </script>
+    return closestColor;
+}
 
+function analyzeImage() {
+    const fileInput = document.getElementById('imageUpload');
+    const file = fileInput.files[0];
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const colorCounts = {};
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            const r = imageData.data[i];
+            const g = imageData.data[i+1];
+            const b = imageData.data[i+2];
+            const color = closestColor([r,g,b]);
+            colorCounts[color] = (colorCounts[color] || 0) + 1;
+        }
+        let totalPixels = canvas.width * canvas.height;
+        for (let color in colorCounts) {
+            let percentage = (colorCounts[color] / totalPixels) * 100;
+            console.log(`${color}: ${percentage.toFixed(2)}%`);
+        }
+    };
+}
+</script>
 </body>
+</html>
