@@ -3,6 +3,7 @@
 <body>
 <input type="file" id="imageUpload" />
 <input type="number" id="length" placeholder="Länge in cm" />
+<input type="number" id="width" placeholder="Breite in cm" />
 <button onclick="analyzeImage()">Analyze</button>
 <div id="progressBar" style="width: 100%; background-color: #f3f3f3;">
   <div id="progress" style="width: 0%; height: 20px; background-color: #4caf50;"></div>
@@ -37,8 +38,10 @@ function closestColor(rgb) {
 function analyzeImage() {
     const fileInput = document.getElementById('imageUpload');
     const lengthInput = document.getElementById('length');
+    const widthInput = document.getElementById('width');
     const file = fileInput.files[0];
     const lengthInCm = lengthInput.value;
+    const widthInCm = widthInput.value;
     const img = new Image();
     img.src = URL.createObjectURL(file);
     img.onload = function() {
@@ -70,15 +73,9 @@ function analyzeImage() {
         for (let color in colorCounts) {
             let percentageOfImage = colorCounts[color] / totalPixels;
             let areaInSquareMeters;
-            if (canvas.width > canvas.height) {
-                let widthInMeters = lengthInCm / 100.0;
-                let heightInMeters = widthInMeters * (canvas.height / canvas.width);
-                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
-            } else {
-                let heightInMeters = lengthInCm / 100.0;
-                let widthInMeters = heightInMeters * (canvas.width / canvas.height);
-                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
-            }
+            let lengthInMeters = lengthInCm / 100.0;
+            let widthInMeters = widthInCm / 100.0;
+            areaInSquareMeters = percentageOfImage * lengthInMeters * widthInMeters;
             resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
         }
         document.getElementById('results').value = resultsText;
