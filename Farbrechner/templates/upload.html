@@ -1,46 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <title>Fridays for Future München</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="description" content="Fridays for Future München">
-
-    <link rel="icon" href="./assets/img/fff_icon.png">
-    <link rel="stylesheet" href="./assets/css/main.css">
-    <link rel="stylesheet" href="./assets/css/schedule.css">
-
-
-    <!--<script src="assets/ical.js"></script>-->
-    <script src="assets/showdown.min.js"></script>
-
-    <!-- Emoji script for chrome -->
-    <script src="assets/twemoji.min.js"></script>
-    <script defer data-domain="fff-muc.de" src="https://tracking.fff-muc.de/js/plausible.js"></script>
+    <title>Farbenrechner</title>
 </head>
-
 <body>
-<section id="header">
-    <div>
-        <a href="index.html">
-          <img src="./assets/img/fff_muc_logo.png" class="header-logo" alt="Fridays for Future München">
-        </a>
-        <div class="header">
-          <span class="site-title">Pressebereich</span>
-        </div>
-    </div>
-    <div style="height: 22vw; max-height: 240px"></div>
-    <h1 class="site-heading"> Pressebereich </h1>
-</section>
-
-<h1>Farbenrechner</h1>
+    <h1>Farbenrechner</h1>
     <form method="POST" enctype="multipart/form-data">
         <label for="file">Bild hochladen:</label>
         <input type="file" id="file" name="file" accept="image/*"><br>
-        <label for="size">Größe in Metern:</label>
-        <input type="number" id="size" name="size" min="0"><br>
+        <label for="width">Breite in Metern:</label>
+        <input type="number" id="width" name="width" min="0"><br>
+        <label for="height">Höhe in Metern:</label>
+        <input type="number" id="height" name="height" min="0"><br>
         <label for="colors">Farben in Litern:</label><br>
         <div id="colorInputs">
             <div>
@@ -78,3 +49,4 @@
     </script>
 
 </body>
+</html>
