@@ -69,7 +69,16 @@ function analyzeImage() {
         let resultsText = '';
         for (let color in colorCounts) {
             let percentageOfImage = colorCounts[color] / totalPixels;
-            let areaInSquareMeters = percentageOfImage * Math.pow(lengthInCm / 100.0, 2);
+            let areaInSquareMeters;
+            if (canvas.width > canvas.height) {
+                let widthInMeters = lengthInCm / 100.0;
+                let heightInMeters = widthInMeters * (canvas.height / canvas.width);
+                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
+            } else {
+                let heightInMeters = lengthInCm / 100.0;
+                let widthInMeters = heightInMeters * (canvas.width / canvas.height);
+                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
+            }
             resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
         }
         document.getElementById('results').value = resultsText;
@@ -78,4 +87,3 @@ function analyzeImage() {
 </script>
 </body>
 </html>
-
