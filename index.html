@@ -3,6 +3,9 @@
 <body>
 <input type="file" id="imageUpload" />
 <button onclick="analyzeImage()">Analyze</button>
+<div id="progressBar" style="width: 100%; background-color: #f3f3f3;">
+  <div id="progress" style="width: 0%; height: 20px; background-color: #4caf50;"></div>
+</div>
 <script>
 const colors = {
     'rot': [255, 0, 0],
@@ -47,6 +50,12 @@ function analyzeImage() {
             const b = imageData.data[i+2];
             const color = closestColor([r,g,b]);
             colorCounts[color] = (colorCounts[color] || 0) + 1;
+
+            // Update progress bar
+            if (i % (imageData.data.length / 100) === 0) {
+                const progress = document.getElementById('progress');
+                progress.style.width = `${i / imageData.data.length * 100}%`;
+            }
         }
         let totalPixels = canvas.width * canvas.height;
         for (let color in colorCounts) {
