@@ -3,12 +3,11 @@
 <body>
 <input type="file" id="imageUpload" />
 <input type="number" id="length" placeholder="Länge in cm" />
-<input type="number" id="width" placeholder="Breite in cm" />
 <button onclick="analyzeImage()">Analyze</button>
 <div id="progressBar" style="width: 100%; background-color: #f3f3f3;">
   <div id="progress" style="width: 0%; height: 20px; background-color: #4caf50;"></div>
 </div>
-<div style="position: relative; width: 100%; max-height: 1000px; max-width: 1000px; overflow: auto;">
+<div style="position: relative; width: 100%; max-height: 700px; max-width: 1000px; overflow: auto;">
   <img id="preview" style="max-width: 100%; max-height: 100%;" />
   <canvas id="overlay" style="position: absolute; top: 0; left: 0; pointer-events: none; max-width: 100%; max-height: 100%;"></canvas>
 </div>
@@ -48,10 +47,8 @@ function closestColor(rgb) {
 function analyzeImage() {
     const fileInput = document.getElementById('imageUpload');
     const lengthInput = document.getElementById('length');
-    const widthInput = document.getElementById('width');
     const file = fileInput.files[0];
     const lengthInCm = lengthInput.value;
-    const widthInCm = widthInput.value;
     const img = new Image();
     img.src = URL.createObjectURL(file);
     img.onload = function() {
@@ -98,15 +95,9 @@ function analyzeImage() {
         for (let color in colorCounts) {
             let percentageOfImage = colorCounts[color] / totalPixels;
             let areaInSquareMeters;
-            if (canvas.width > canvas.height) {
-                let widthInMeters = lengthInCm / 100.0;
-                let heightInMeters = widthInMeters * (canvas.height / canvas.width);
-                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
-            } else {
-                let heightInMeters = lengthInCm / 100.0;
-                let widthInMeters = heightInMeters * (canvas.width / canvas.height);
-                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
-            }
+            let widthInMeters = lengthInCm / 100.0;
+            let heightInMeters = widthInMeters * (canvas.height / canvas.width);
+            areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
             // Nur Farben auflisten, die mehr als 0,1 Quadratmeter des Bildes einnehmen
             if (areaInSquareMeters > 0.1) {
                 resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
