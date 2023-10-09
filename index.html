@@ -1,6 +1,50 @@
 <!DOCTYPE html>
 <html>
 <body>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            transition: background-color 0.5s ease;
+        }
+        #app {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input[type="file"], input[type="number"] {
+            display: none;
+        }
+        label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #4285f4;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+        button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #34a853;
+            color: white;
+            border-radius: 8px;
+        }
+        textarea {
+            display: block;
+            margin-top: 20px;
+            width: 100%;
+        }
+    </style>
 <input type="file" id="imageUpload" />
 <input type="number" id="length" placeholder="Länge in cm" />
 <button onclick="analyzeImage()">Analyze</button>
