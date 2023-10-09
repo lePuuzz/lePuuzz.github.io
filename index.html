@@ -3,7 +3,12 @@
 <body style="zoom: 110%;">
 <div id="container" style="display: flex; flex-wrap: nowrap; flex-direction: row; justify-content: space-between;">
   <div id="imageContainer" style="flex: 50%; min-width: 500px;">
-    <input type="file" id="imageUpload" />
+    <!-- Verstecken Sie den ursprünglichen Datei-Upload-Button -->
+    <input type="file" id="imageUpload" style="display: none;" onchange="updateFileName()" />
+    <!-- Erstellen Sie einen neuen Button -->
+    <button id="uploadButton" onclick="document.getElementById('imageUpload').click();">Datei auswählen</button>
+    <!-- Hier wird der Dateiname angezeigt -->
+    <span id="fileName"></span>
     <input type="number" id="length" placeholder="Länge in cm" />
     <button id="analyzeButton">Analyze</button>
     <div style="position: relative; width: 100%; max-height: 600px; max-width: 1000px;">
@@ -47,6 +52,16 @@ function closestColor(rgb) {
         }
     }
     return closestColor;
+}
+
+function updateFileName() {
+    const fileInput = document.getElementById('imageUpload');
+    const fileNameDisplay = document.getElementById('fileName');
+    if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+    } else {
+        fileNameDisplay.textContent = '';
+    }
 }
 
 function analyzeImage() {
@@ -166,15 +181,21 @@ document.getElementById('toggleDarkModeButton').addEventListener('click', toggle
        color: white;
     }
     
-    .dark-mode textarea {
+    .dark-mode textarea, .dark-mode button, .dark-mode input {
        background-color: #121212;
        color: #ddd;
-    
+    }
+    .dark-mode button, .dark-mode input[type="button"], .dark-mode input[type="number"], .dark-mode span {
+   background-color: #121212;
+   color: #ddd;
 }
+
+    
 @media (min-height: 800px) {
   #resultsContainer {
     margin-left: 30px;}}
-    </style>
+</style>
+
 
 </body>
 </html>
