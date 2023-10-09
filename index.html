@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <body style="zoom: 110%;">
-<div id="container" style="display: flex; flex-wrap: nowrap; flex-direction: row; justify-content: space-between;">
-  <div id="imageContainer" style="flex: 50%; min-width: 500px;">
+<div id="container" style="display: flex; flex-wrap: wrap; flex-direction: row; justify-content: center; align-items: center;">
+    <div id="imageContainer"  style="flex: 50%; min-width: 500px; order: 2;">
     <!-- Verstecken Sie den ursprünglichen Datei-Upload-Button -->
     <input type="file" id="imageUpload" style="display: none;" onchange="updateFileName()" />
     <!-- Erstellen Sie einen neuen Button -->
@@ -18,9 +18,10 @@
     <button id="toggleOverlayButton">Toggle Overlay</button>
     <button id="toggleDarkModeButton">Dark Mode</button>
 </div>
+<div id="resultsContainer" style="flex: 7%; min-width: 30px; order: 1; margin-right: 20px; margin-bottom: 20px;">
+    <textarea id="results" style="width: 100%; height: 300px; resize: none; border: none;" readonly></textarea>
 </div>
-
-
+</div>
 
 <script>
 // Defining the colors
@@ -95,7 +96,7 @@ function analyzeImage() {
             overlayCtx.canvas.width = img.width;
             overlayCtx.canvas.height = img.height;
 
-            const overlayImageData = overlayCtx.createImageData(canvas.width, canvas.height);
+const overlayImageData = overlayCtx.createImageData(canvas.width, canvas.height);
 
             const colorCounts = {};
 
@@ -203,7 +204,6 @@ document.getElementById('toggleDarkModeButton').addEventListener('click', toggle
   #resultsContainer {
     margin-left: 30px;}}
 </style>
-
 
 </body>
 </html>
