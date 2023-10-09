@@ -14,7 +14,7 @@
     <button id="toggleDarkModeButton">Dark Mode</button>
   </div>
   <div id="resultsContainer" style="flex: 50%;">
-    <textarea id="results" style="width: 100%; height: 700px;"></textarea>
+    <textarea id="results" style="width: 100%; height: 700px;" readonly></textarea>
   </div>
 </div>
 
@@ -154,17 +154,11 @@ document.getElementById('toggleDarkModeButton').addEventListener('click', toggle
 </script>
 
 <style>
-    .dark-mode {
-       background-color: #1a1913;
-       color: #ddd;
-    }
-    
-    .dark-mode textarea {
-       background-color: #1a1919;
-       color: #ddd;
-    }
-    </style>
-    
+.dark-mode {
+   background-color: black;
+   color: white;
+}
+</style>
 
 </body>
 </html>
