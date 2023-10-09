@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 <body style="zoom: 110%;">
-<div id="container" style="display: flex; flex-wrap: wrap;">
-  <div id="imageContainer" style="flex: 50%;">
+<div id="container" style="display: flex; flex-wrap: wrap; flex-direction: row;">
+  <div id="imageContainer" style="flex: 50%; min-width: 300px;">
     <input type="file" id="imageUpload" />
     <input type="number" id="length" placeholder="Länge in cm" />
     <button id="analyzeButton">Analyze</button>
@@ -13,7 +13,7 @@
     <button id="toggleOverlayButton">Toggle Overlay</button>
     <button id="toggleDarkModeButton">Dark Mode</button>
 </div>
-<div id="resultsContainer" style="flex: 50%;">
+<div id="resultsContainer" style="flex: 50%; min-width: 100px;">
     <textarea id="results" style="width: 100%; height: 700px;" readonly></textarea>
   </div>
 </div>
