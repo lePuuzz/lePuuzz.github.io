@@ -1,61 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
-        }
-        #app {
-            text-align: center;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-        }
-        input[type="file"], input[type="number"] {
-            display: none;
-        }
-        label {
-            display: inline-block;
-            padding: 10px 20px;
-            background-color: #4285f4;
-            color: white;
-            cursor: pointer;
-            border-radius: 8px;
-        }
-        button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #34a853;
-            color: white;
-            border-radius: 8px;
-        }
-        textarea {
-            display: block;
-            margin-top: 20px;
-            width: 100%;
-        }
-    </style>
-</head>
 <body>
-<div id="app">
-    <label for="imageUpload">Bild auswählen</label>
-    <input type="file" id="imageUpload" />
-    <input type="number" id="length" placeholder="Länge in cm" />
-    <input type="number" id="width" placeholder="Breite in cm" />
-    <button onclick="analyzeImage()">Analysieren</button>
-    <img id="preview" style="width: 100%;" />
-    <textarea id="results" style="width: 100%; height: 200px;"></textarea>
-    <button onclick="toggleDarkMode()">Dark Mode</button>
+<input type="file" id="imageUpload" />
+<input type="number" id="length" placeholder="Länge in cm" />
+<button onclick="analyzeImage()">Analyze</button>
+<div id="progressBar" style="width: 100%; background-color: #f3f3f3;">
+  <div id="progress" style="width: 0%; height: 20px; background-color: #4caf50;"></div>
 </div>
+<img id="preview" style="width: 100%;" />
+<textarea id="results" style="width: 100%; height: 200px;"></textarea>
 <script>
 const colors = {
     'rot': [255, 0, 0],
@@ -71,113 +24,65 @@ const colors = {
 function closestColor(rgb) {
     let colorDiff = Infinity;
     let closestColor;
-
     for (let color in colors) {
         const diff = Math.abs(rgb[0] - colors[color][0]) + Math.abs(rgb[1] - colors[color][1]) + Math.abs(rgb[2] - colors[color][2]);
-        
         if (diff < colorDiff) {
             colorDiff = diff;
             closestColor = color;
         }
     }
-
     return closestColor;
 }
 
 function analyzeImage() {
     const fileInput = document.getElementById('imageUpload');
     const lengthInput = document.getElementById('length');
-    const widthInput = document.getElementById('width');
-    
     const file = fileInput.files[0];
-    
     const lengthInCm = lengthInput.value;
-    
-    const widthInCm = widthInput.value;
-
-    
     const img = new Image();
-    
     img.src = URL.createObjectURL(file);
-    
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
-   
+    img.onload = function() {
+        // Zeige eine Vorschau des Bildes
+        document.getElementById('preview').src = img.src;
 
-    
-    
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const colorCounts = {};
+        for (let i = 0; i < imageData.data.length; i += 4) {
+            const r = imageData.data[i];
+            const g = imageData.data[i+1];
+            const b = imageData.data[i+2];
+            const color = closestColor([r,g,b]);
+            colorCounts[color] = (colorCounts[color] || 0) + 1;
 
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-
-    
-    
-    
-    
-    
+            // Update progress bar
+            if (i % (imageData.data.length / 100) === 0) {
+                const progress = document.getElementById('progress');
+                progress.style.width = `${i / imageData.data.length * 100}%`;
+            }
+        }
+        let totalPixels = canvas.width * canvas.height;
+        let resultsText = '';
+        for (let color in colorCounts) {
+            let percentageOfImage = colorCounts[color] / totalPixels;
+            let areaInSquareMeters;
+            if (canvas.width > canvas.height) {
+                let widthInMeters = lengthInCm / 100.0;
+                let heightInMeters = widthInMeters * (canvas.height / canvas.width);
+                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
+            } else {
+                let heightInMeters = lengthInCm / 100.0;
+                let widthInMeters = heightInMeters * (canvas.width / canvas.height);
+                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
+            }
+            resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
+        }
+        document.getElementById('results').value = resultsText;
+    };
 }
 </script>
 </body>
