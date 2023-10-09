@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <body style="zoom: 110%;">
-<div id="container" style="display: flex; flex-wrap: wrap; flex-direction: row;">
+<div id="container" style="display: flex; flex-wrap: wrap;">
   <div id="imageContainer" style="flex: 50%;">
     <input type="file" id="imageUpload" />
     <input type="number" id="length" placeholder="Länge in cm" />
@@ -115,14 +115,14 @@ function analyzeImage() {
             document.getElementById('results').value = resultsText;
 
             // Position des Ausgabefelds anpassen
-            if (img.width > img.height) {
-              document.getElementById('resultsContainer').style.order = '2';
-              document.getElementById('container').style.flexDirection = 'column';
-            } else {
-              document.getElementById('resultsContainer').style.order = '1';
-              document.getElementById('container').style.flexDirection = 'row';
-            }
-        };
+            if (window.innerWidth > window.innerHeight) {
+          document.getElementById('resultsContainer').style.order = '2';
+          document.getElementById('container').style.flexDirection = 'row';
+        } else {
+          document.getElementById('resultsContainer').style.order = '1';
+          document.getElementById('container').style.flexDirection = 'column';
+        }
+    };
 }
 
 document.getElementById('analyzeButton').addEventListener('click', analyzeImage);
