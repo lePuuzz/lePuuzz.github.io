@@ -1,4 +1,4 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <body>
 <input type="file" id="imageUpload" />
@@ -88,7 +88,10 @@ function analyzeImage() {
                 let widthInMeters = heightInMeters * (canvas.width / canvas.height);
                 areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
             }
-            resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
+            // Nur Farben auflisten, die mehr als 0,1 Quadratmeter des Bildes einnehmen
+            if (areaInSquareMeters > 0.1) {
+                resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
+            }
         }
         document.getElementById('results').value = resultsText;
     };
