@@ -2,14 +2,14 @@
 <html>
 <body>
 <div id="container" style="display: flex; flex-wrap: wrap;">
-  <div style="flex: 50%;">
+  <div id="imageContainer" style="flex: 50%;">
     <input type="file" id="imageUpload" />
     <input type="number" id="length" placeholder="Länge in cm" />
     <button onclick="analyzeImage()">Analyze</button>
     <div id="progressBar" style="width: 100%; background-color: #f3f3f3;">
       <div id="progress" style="width: 0%; height: 20px; background-color: #4caf50;"></div>
     </div>
-    <div style="position: relative; width: 100%; max-height: 450px; max-width: 1000px; overflow: auto;">
+    <div style="position: relative; width: 100%; max-height: 450px; max-width: 1000px;">
       <img id="preview" style="max-width: 100%; max-height: 450px;" />
       <canvas id="overlay" style="position: absolute; top: 0; left: 0; pointer-events: none; max-width: 100%; max-height: 450px;"></canvas>
     </div>
@@ -56,6 +56,7 @@ function analyzeImage() {
     const lengthInput = document.getElementById('length');
     const file = fileInput.files[0];
     const lengthInCm = lengthInput.value;
+    
     const img = new Image();
     img.src = URL.createObjectURL(file);
     
@@ -69,16 +70,20 @@ function analyzeImage() {
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0);
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        
         const overlayCtx = document.getElementById('overlay').getContext('2d');
         overlayCtx.canvas.width = img.width;
         overlayCtx.canvas.height = img.height;
+        
         const overlayImageData = overlayCtx.createImageData(canvas.width, canvas.height);
         
         const colorCounts = {};
+        
         for (let i = 0; i < imageData.data.length; i += 4) {
             const r = imageData.data[i];
             const g = imageData.data[i+1];
             const b = imageData.data[i+2];
+            
             const colorName = closestColor([r,g,b]);
             colorCounts[colorName] = (colorCounts[colorName] || 0) + 1;
 
@@ -100,21 +105,26 @@ function analyzeImage() {
 
         let totalPixels = canvas.width * canvas.height;
         let resultsText = '';
+        
         for (let color in colorCounts) {
             let percentageOfImage = colorCounts[color] / totalPixels;
             let areaInSquareMeters;
+            
             let widthInMeters = lengthInCm / 100.0;
             let heightInMeters = widthInMeters * (canvas.height / canvas.width);
+            
             areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
+            
             // Nur Farben auflisten, die mehr als 0,1 Quadratmeter des Bildes einnehmen
             if (areaInSquareMeters > 0.1) {
                 resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
             }
         }
+        
         document.getElementById('results').value = resultsText;
 
         // Position des Ausgabefelds anpassen
-        if (img.height < 350) {
+        if (img.width > img.height) {
           document.getElementById('resultsContainer').style.order = '2';
           document.getElementById('container').style.flexDirection = 'column';
         } else {
