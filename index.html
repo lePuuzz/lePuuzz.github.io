@@ -78,6 +78,30 @@ function closestColor(rgb) {
     }
     return closestColor;
 }
+function analyzeImage() {
+    const fileInput = document.getElementById('imageUpload');
+    const lengthInput = document.getElementById('length');
+    const file = fileInput.files[0];
+    const lengthInCm = lengthInput.value;
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+    img.onload = function() {
+// Zeige eine Vorschau des Bildes
+document.getElementById('preview').src = img.src;
+
+const canvas = document.createElement('canvas');
+canvas.width = img.width;
+canvas.height = img.height;
+const ctx = canvas.getContext('2d');
+ctx.drawImage(img, 0, 0);
+const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+const colorCounts = {};
+for (let i = 0; i < imageData.data.length; i += 4) {
+    const r = imageData.data[i];
+    const g = imageData.data[i+1];
+    const b = imageData.data[i+2];
+    const color = closestColor([r,g,b]);
+    colorCounts[color] = (colorCounts[color] || 0) + 1;
 
 function analyzeImage() {
     const fileInput = document.getElementById('imageUpload');
