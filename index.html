@@ -129,10 +129,13 @@ document.getElementById('analyzeButton').addEventListener('click', analyzeImage)
 
 function toggleOverlay() {
     const overlay = document.getElementById('overlay');
+    const button = document.getElementById('toggleOverlayButton');
     if (overlay.style.display === 'none') {
         overlay.style.display = 'block';
+        button.style.backgroundColor = '#4CAF50'; // Green
     } else {
         overlay.style.display = 'none';
+        button.style.backgroundColor = ''; // Default
     }
 }
 
@@ -140,13 +143,16 @@ document.getElementById('toggleOverlayButton').addEventListener('click', toggleO
 
 function toggleDarkMode() {
    var element = document.body; 
+   var button = document.getElementById('toggleDarkModeButton');
    element.classList.toggle("dark-mode");
    if (element.classList.contains("dark-mode")) {
        document.body.style.backgroundColor = "#121212";
        document.body.style.color = "white";
+       button.style.backgroundColor = '#4CAF50'; // Green
    } else {
        document.body.style.backgroundColor = "white";
        document.body.style.color = "#121212";
+       button.style.backgroundColor = ''; // Default
    }
 }
 
