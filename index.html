@@ -1,28 +1,82 @@
 <!DOCTYPE html>
 <html>
-<body style="zoom: 110%;">
-<div id="container" style="display: flex; flex-wrap: nowrap; flex-direction: row; justify-content: space-between;">
-  <div id="imageContainer" style="flex: 50%; min-width: 500px;">
-    <!-- Verstecken Sie den ursprünglichen Datei-Upload-Button -->
-    <input type="file" id="imageUpload" style="display: none;" onchange="updateFileName()" />
-    <!-- Erstellen Sie einen neuen Button -->
-    <button id="uploadButton" onclick="document.getElementById('imageUpload').click();">Datei auswählen</button>
-    <!-- Hier wird der Dateiname angezeigt -->
-    <span id="fileName"></span>
-    <input type="number" id="length" placeholder="Länge in cm" />
-    <button id="analyzeButton">Analyze</button>
-    <div style="position: relative; width: 100%; max-height: 600px; max-width: 1000px;">
-      <img id="preview" style="max-width: 100%; max-height: 600px;" />
-      <canvas id="overlay" style="position: absolute; top: 0; left: 0; pointer-events: none; max-width: 100%; max-height: 600px;"></canvas>
-    </div>
-    <button id="toggleOverlayButton">Toggle Overlay</button>
-    <button id="toggleDarkModeButton">Dark Mode</button>
-</div>
-<div id="resultsContainer" style="flex: 7%; min-width: 30px;">
-  <textarea id="results" style="width: 100%; height: 300px; resize: none; border: none;" readonly></textarea>
-</div>
-</div>
+    <head>
+        <style>
+            .dark-mode {
+                background-color: #121212;
+                color: white;
+            }
+            
+            .dark-mode textarea, .dark-mode button, .dark-mode input[type="button"], .dark-mode input[type="number"], .dark-mode span {
+                background-color: #121212;
+                color: #ddd;
+            }
+            
+            button {
+                background-color: #4A90E2;
+                color: white;
+                border-radius: 5px;
+                border: none;
+                padding: 5px 10px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin-top:10px;
+                cursor:pointer;
+            }
+            
+            body {
+                font-family:'Arial', sans-serif;
+                color:#4A4A4A;
+            }
 
+            #startPage {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+
+            #imageContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+        </style>
+        
+    </head>
+<body style="zoom: 110%; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
+    <div id="startPage">
+        <h1>Willkommen auf unserer Webseite!</h1>
+        <p>Bitte laden Sie ein Bild hoch, um fortzufahren.</p>
+        <button id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="margin-bottom: 10px;">Datei auswählen</button>
+        <button id="toggleDarkModeButton">Dark Mode</button>
+    </div>    
+    <div id="imageContainer" style="flex: 1 1 auto; min-width: 500px; flex-direction: column;">
+        <div id="uploadAndAnalyzeSection" style="display: flex; justify-content: space-around; align-items: center;">
+            <input type="file" id="imageUpload" style="display: none;" onchange="updateFileName(); showElements();" />
+            <button id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="margin-bottom: 10px;">Datei auswählen</button>
+            <span id="fileName"></span>
+            <input type="number" id="length" placeholder="Länge in cm" />
+            <button id="analyzeButton" onclick="analyzeImage()">Analyze</button>
+        </div>
+        <div style="position: relative; width: 100%; max-height: 600px; max-width: 1000px;">
+            <img id="preview" style="max-width: 100%; max-height: 600px; object-fit: contain;" onload="adjustLayout()" />
+            <canvas id="overlay" style="position: absolute; top: 0; left: 0; pointer-events: none; max-width: 100%; max-height: 600px; display: none;"></canvas>
+        </div>
+        <div id="buttonSection" style="display: flex; justify-content: space-around; align-items: center;">
+            <button id="toggleOverlayButton">Toggle Overlay</button>
+            <button id="toggleDarkModeButton">Dark Mode</button>
+        </div>
+    </div>
+    <div id="resultsContainer" style="flex: 1 1 auto; min-width: 250px; margin-left: 20px;">
+        <textarea id="results" style="width: 100%; height: 300px; resize: none; border: none;" readonly></textarea>
+    </div>
+    
+    
 
 <script>
 const colors = {
@@ -41,6 +95,26 @@ const colors = {
     'beige': [245,245,220] // Neu hinzugefügt
 };
 
+function showElements() {
+    document.getElementById('startPage').style.display = 'none';
+    document.getElementById('imageContainer').style.display = 'flex';
+    const elements = document.querySelectorAll('#imageContainer > *');
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].id !== 'uploadButton') {
+            elements[i].style.display = 'block';
+        }
+    }
+}
+
+window.onload = function() {
+    const elements = document.querySelectorAll('#imageContainer > *');
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].id !== 'uploadButton') {
+            elements[i].style.display = 'none';
+        }
+    }
+}
+
 function closestColor(rgb) {
     let colorDiff = Infinity;
     let closestColor;
@@ -52,16 +126,6 @@ function closestColor(rgb) {
         }
     }
     return closestColor;
-}
-
-function updateFileName() {
-    const fileInput = document.getElementById('imageUpload');
-    const fileNameDisplay = document.getElementById('fileName');
-    if (fileInput.files.length > 0) {
-        fileNameDisplay.textContent = fileInput.files[0].name;
-    } else {
-        fileNameDisplay.textContent = '';
-    }
 }
 
 function analyzeImage() {
@@ -131,14 +195,8 @@ function analyzeImage() {
             document.getElementById('results').value = resultsText;
 
             // Position des Ausgabefelds anpassen
-            if (window.innerWidth > window.innerHeight) {
-          document.getElementById('resultsContainer').style.order = '2';
-          document.getElementById('container').style.flexDirection = 'row';
-        } else {
-          document.getElementById('resultsContainer').style.order = '1';
-          document.getElementById('container').style.flexDirection = 'column';
-        }
-    };
+            adjustLayout();
+        };
 }
 
 document.getElementById('analyzeButton').addEventListener('click', analyzeImage);
@@ -173,29 +231,46 @@ function toggleDarkMode() {
 }
 
 document.getElementById('toggleDarkModeButton').addEventListener('click', toggleDarkMode);
-</script>
 
-<style>
-    .dark-mode {
-       background-color: #121212;
-       color: white;
+function updateFileName() {
+    const fileInput = document.getElementById('imageUpload');
+    const fileNameDisplay = document.getElementById('fileName');
+    if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+    } else {
+        fileNameDisplay.textContent = '';
     }
-    
-    .dark-mode textarea, .dark-mode button, .dark-mode input {
-       background-color: #121212;
-       color: #ddd;
-    }
-    .dark-mode button, .dark-mode input[type="button"], .dark-mode input[type="number"], .dark-mode span {
-   background-color: #121212;
-   color: #ddd;
 }
 
+function adjustLayout() {
+    const imgElement = document.getElementById('preview');
+    const containerElement = document.getElementById('container');
     
-@media (min-height: 800px) {
-  #resultsContainer {
-    margin-left: 30px;}}
-</style>
+    imgElement.onload = function() {
+        if (imgElement.offsetWidth > window.innerWidth / 2) {
+            containerElement.style.flexDirection = 'column';
+        } else {
+            containerElement.style.flexDirection = 'row';
+        }
+    }
+}
 
+window.addEventListener('resize', adjustLayout);
 
+// Füge den Event-Listener zum Datei-Upload-Feld hinzu
+document.getElementById('imageUpload').addEventListener('change', function() {
+    // Setze den Fokus auf das "Länge in cm"-Feld
+    document.getElementById('length').focus();
+
+    // Füge einen Event-Listener hinzu, der auf die Enter-Taste reagiert
+    document.getElementById('length').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            // Starte die Analyse
+            analyzeImage();
+        }
+    });
+});
+
+</script>
 </body>
 </html>
