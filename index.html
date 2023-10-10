@@ -69,6 +69,7 @@
         </div>
         <div id="buttonSection" style="display: flex; justify-content: space-around; align-items: center;">
             <button id="toggleOverlayButton">Toggle Overlay</button>
+            <input type="range" min="0" max="255" value="127" class="slider" id="transparencySlider">
             <button id="toggleDarkModeButton2">Dark Mode</button>
         </div>
     </div>
@@ -211,9 +212,13 @@ document.getElementById('analyzeButton').addEventListener('click', analyzeImage)
 function toggleOverlay() {
     const overlay = document.getElementById('overlay');
     const button = document.getElementById('toggleOverlayButton');
+    const slider = document.getElementById('transparencySlider');
     if (overlay.style.display === 'none') {
         overlay.style.display = 'block';
         button.style.backgroundColor = '#4CAF50'; // Green
+        slider.oninput = function() { // Neuer Event-Listener hier
+            overlay.style.opacity = this.value / 255;
+        }
     } else {
         overlay.style.display = 'none';
         button.style.backgroundColor = ''; // Default
