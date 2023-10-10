@@ -53,7 +53,7 @@
         <h1>Willkommen auf unserer Webseite!</h1>
         <p>Bitte laden Sie ein Bild hoch, um fortzufahren.</p>
         <button id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="margin-bottom: 10px;">Datei auswählen</button>
-        <button id="toggleDarkModeButton">Dark Mode</button>
+        <button id="toggleDarkModeButton1">Dark Mode</button>
     </div>    
     <div id="imageContainer" style="flex: 1 1 auto; min-width: 500px; flex-direction: column;">
         <div id="uploadAndAnalyzeSection" style="display: flex; justify-content: space-around; align-items: center;">
@@ -69,7 +69,7 @@
         </div>
         <div id="buttonSection" style="display: flex; justify-content: space-around; align-items: center;">
             <button id="toggleOverlayButton">Toggle Overlay</button>
-            <button id="toggleDarkModeButton" onclick="toggleDarkMode()">Dark Mode</button>
+            <button id="toggleDarkModeButton2">Dark Mode</button>
         </div>
     </div>
     <div id="resultsContainer" style="flex: 1 1 auto; min-width: 250px; margin-left: 20px;">
@@ -225,20 +225,23 @@ document.getElementById('toggleOverlayButton').addEventListener('click', toggleO
 // Function to toggle the dark mode
 function toggleDarkMode() {
    var element = document.body; 
-   var button = document.getElementById('toggleDarkModeButton');
+   var button1 = document.getElementById('toggleDarkModeButton1');
+   var button2 = document.getElementById('toggleDarkModeButton2');
    element.classList.toggle("dark-mode");
    if (element.classList.contains("dark-mode")) {
        document.body.style.backgroundColor = "#121212";
-       document.body.style.color = "white";
-       button.style.backgroundColor = '#4CAF50'; // Green
+       button1.style.backgroundColor = '#4CAF50'; // Green
+       button2.style.backgroundColor = '#4CAF50'; // Green
    } else {
        document.body.style.backgroundColor = "white";
        document.body.style.color = "#121212";
-       button.style.backgroundColor = ''; // Default
+       button1.style.backgroundColor = ''; // Default
+       button2.style.backgroundColor = ''; // Default
    }
 }
 
-document.getElementById('toggleDarkModeButton').addEventListener('click', toggleDarkMode);
+document.getElementById('toggleDarkModeButton1').addEventListener('click', toggleDarkMode);
+document.getElementById('toggleDarkModeButton2').addEventListener('click', toggleDarkMode);
 
 function updateFileName() {
     const fileInput = document.getElementById('imageUpload');
