@@ -69,7 +69,7 @@
         </div>
         <div id="buttonSection" style="display: flex; justify-content: space-around; align-items: center;">
             <button id="toggleOverlayButton">Toggle Overlay</button>
-            <button id="toggleDarkModeButton">Dark Mode</button>
+            <button id="toggleDarkModeButton" onclick="toggleDarkMode()">Dark Mode</button>
         </div>
     </div>
     <div id="resultsContainer" style="flex: 1 1 auto; min-width: 250px; margin-left: 20px;">
@@ -116,7 +116,6 @@ window.onload = function() {
     }
 }
 
-// Function to find the closest color
 function closestColor(rgb) {
     let colorDiff = Infinity;
     let closestColor;
@@ -130,7 +129,6 @@ function closestColor(rgb) {
     return closestColor;
 }
 
-// Function to analyze the image
 function analyzeImage() {
         const fileInput = document.getElementById('imageUpload');
         const lengthInput = document.getElementById('length');
@@ -241,29 +239,46 @@ function toggleDarkMode() {
 }
 
 document.getElementById('toggleDarkModeButton').addEventListener('click', toggleDarkMode);
-</script>
 
-<style>
-    .dark-mode {
-       background-color: #121212;
-       color: white;
+function updateFileName() {
+    const fileInput = document.getElementById('imageUpload');
+    const fileNameDisplay = document.getElementById('fileName');
+    if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+    } else {
+        fileNameDisplay.textContent = '';
     }
-    
-    .dark-mode textarea, .dark-mode button, .dark-mode input {
-       background-color: #121212;
-       color: #ddd;
-    }
-    .dark-mode button, .dark-mode input[type="button"], .dark-mode input[type="number"], .dark-mode span {
-   background-color: #121212;
-   color: #ddd;
 }
 
+function adjustLayout() {
+    const imgElement = document.getElementById('preview');
+    const containerElement = document.getElementById('container');
     
-@media (min-height: 800px) {
-  #resultsContainer {
-    margin-left: 30px;}}
-</style>
+    imgElement.onload = function() {
+        if (imgElement.offsetWidth > window.innerWidth / 2) {
+            containerElement.style.flexDirection = 'column';
+        } else {
+            containerElement.style.flexDirection = 'row';
+        }
+    }
+}
 
+window.addEventListener('resize', adjustLayout);
 
+// Füge den Event-Listener zum Datei-Upload-Feld hinzu
+document.getElementById('imageUpload').addEventListener('change', function() {
+    // Setze den Fokus auf das "Länge in cm"-Feld
+    document.getElementById('length').focus();
+
+    // Füge einen Event-Listener hinzu, der auf die Enter-Taste reagiert
+    document.getElementById('length').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            // Starte die Analyse
+            analyzeImage();
+        }
+    });
+});
+
+</script>
 </body>
 </html>
