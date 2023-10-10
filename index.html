@@ -79,6 +79,7 @@
     
 
 <script>
+// Defining the colors
 const colors = {
     'rot': [255, 0, 0],
     'gelb': [255, 255, 0],
@@ -115,6 +116,7 @@ window.onload = function() {
     }
 }
 
+// Function to find the closest color
 function closestColor(rgb) {
     let colorDiff = Infinity;
     let closestColor;
@@ -128,17 +130,24 @@ function closestColor(rgb) {
     return closestColor;
 }
 
+// Function to analyze the image
 function analyzeImage() {
         const fileInput = document.getElementById('imageUpload');
         const lengthInput = document.getElementById('length');
         const file = fileInput.files[0];
         const lengthInCm = lengthInput.value;
 
+        // Check if file and length are provided
+        if (!file || !lengthInCm) {
+            alert('Please select a file and enter the length.');
+            return;
+        }
+
         const img = new Image();
         img.src = URL.createObjectURL(file);
 
         img.onload = function() {
-            // Zeige eine Vorschau des Bildes
+            // Show a preview of the image
             document.getElementById('preview').src = img.src;
 
             const canvas = document.createElement('canvas');
@@ -152,7 +161,7 @@ function analyzeImage() {
             overlayCtx.canvas.width = img.width;
             overlayCtx.canvas.height = img.height;
 
-            const overlayImageData = overlayCtx.createImageData(canvas.width, canvas.height);
+const overlayImageData = overlayCtx.createImageData(canvas.width, canvas.height);
 
             const colorCounts = {};
 
@@ -171,13 +180,12 @@ function analyzeImage() {
                 overlayImageData.data[i+3] = 127; // Alpha (transparency)
             }
 
-// Draw the overlay image data to the overlay canvas
+            // Draw the overlay image data to the overlay canvas
             overlayCtx.putImageData(overlayImageData, 0, 0);
 
             let totalPixels = canvas.width * canvas.height;
             let resultsText = '';
-
-            for (let color in colorCounts) {
+for (let color in colorCounts) {
                 let percentageOfImage = colorCounts[color] / totalPixels;
                 let areaInSquareMeters;
 
@@ -201,6 +209,7 @@ function analyzeImage() {
 
 document.getElementById('analyzeButton').addEventListener('click', analyzeImage);
 
+// Function to toggle the overlay
 function toggleOverlay() {
     const overlay = document.getElementById('overlay');
     const button = document.getElementById('toggleOverlayButton');
@@ -215,6 +224,7 @@ function toggleOverlay() {
 
 document.getElementById('toggleOverlayButton').addEventListener('click', toggleOverlay);
 
+// Function to toggle the dark mode
 function toggleDarkMode() {
    var element = document.body; 
    var button = document.getElementById('toggleDarkModeButton');
@@ -231,46 +241,29 @@ function toggleDarkMode() {
 }
 
 document.getElementById('toggleDarkModeButton').addEventListener('click', toggleDarkMode);
-
-function updateFileName() {
-    const fileInput = document.getElementById('imageUpload');
-    const fileNameDisplay = document.getElementById('fileName');
-    if (fileInput.files.length > 0) {
-        fileNameDisplay.textContent = fileInput.files[0].name;
-    } else {
-        fileNameDisplay.textContent = '';
-    }
-}
-
-function adjustLayout() {
-    const imgElement = document.getElementById('preview');
-    const containerElement = document.getElementById('container');
-    
-    imgElement.onload = function() {
-        if (imgElement.offsetWidth > window.innerWidth / 2) {
-            containerElement.style.flexDirection = 'column';
-        } else {
-            containerElement.style.flexDirection = 'row';
-        }
-    }
-}
-
-window.addEventListener('resize', adjustLayout);
-
-// Füge den Event-Listener zum Datei-Upload-Feld hinzu
-document.getElementById('imageUpload').addEventListener('change', function() {
-    // Setze den Fokus auf das "Länge in cm"-Feld
-    document.getElementById('length').focus();
-
-    // Füge einen Event-Listener hinzu, der auf die Enter-Taste reagiert
-    document.getElementById('length').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            // Starte die Analyse
-            analyzeImage();
-        }
-    });
-});
-
 </script>
+
+<style>
+    .dark-mode {
+       background-color: #121212;
+       color: white;
+    }
+    
+    .dark-mode textarea, .dark-mode button, .dark-mode input {
+       background-color: #121212;
+       color: #ddd;
+    }
+    .dark-mode button, .dark-mode input[type="button"], .dark-mode input[type="number"], .dark-mode span {
+   background-color: #121212;
+   color: #ddd;
+}
+
+    
+@media (min-height: 800px) {
+  #resultsContainer {
+    margin-left: 30px;}}
+</style>
+
+
 </body>
 </html>
