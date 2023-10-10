@@ -69,7 +69,8 @@
         </div>
         <div id="buttonSection" style="display: flex; justify-content: space-around; align-items: center;">
             <button id="toggleOverlayButton">Toggle Overlay</button>
-            <input type="range" min="0" max="255" value="127" class="slider" id="transparencySlider">
+            <input type="range" min="0" max="255" value="255" class="slider" id="transparencySlider">
+            <button id="downloadButton">Download Overlay</button> 
             <button id="toggleDarkModeButton2">Dark Mode</button>
         </div>
     </div>
@@ -226,6 +227,39 @@ function toggleOverlay() {
 }
 
 document.getElementById('toggleOverlayButton').addEventListener('click', toggleOverlay);
+
+// Function to download the overlay as a jpg
+function downloadOverlay() {
+    const img = document.getElementById('preview');
+    const overlay = document.getElementById('overlay');
+    const slider = document.getElementById('transparencySlider');
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Draw the original image
+    ctx.drawImage(img, 0, 0);
+    
+    // Set the global alpha to the slider value
+    ctx.globalAlpha = slider.value / 255;
+    
+    // Draw the overlay on top of the original image
+    ctx.drawImage(overlay, 0, 0);
+
+    // Get the file name of the uploaded image
+    const fileInput = document.getElementById('imageUpload');
+    const fileName = fileInput.files[0].name;
+    
+    const link = document.createElement('a');
+    link.download = 'overlay-' + fileName;
+    link.href = canvas.toDataURL("image/jpeg");
+    link.click();
+}
+
+document.getElementById('downloadButton').addEventListener('click', downloadOverlay);
 
 // Function to toggle the dark mode
 function toggleDarkMode() {
