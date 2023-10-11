@@ -1,18 +1,168 @@
 <!DOCTYPE html>
 <html>
-<body>
+    <head>
+        <style>
+        body {
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Änderung hier */
+            height: auto;
+            min-height: 100vh;
+            padding-top: 20px; /* Hinzugefügt */
+            overflow: auto;
+        }
 
-<h2>Farbmischer</h2>
+        .container {
+            background-color: white;
+            width: 70vw;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
 
-<p>Geben Sie die RGB-Werte ein:</p>
+        h1, p {
+            text-align: center;
+        }
 
-R: <input type="number" id="r" min="0" max="255"><br>
-G: <input type="number" id="g" min="0" max="255"><br>
-B: <input type="number" id="b" min="0" max="255"><br>
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            margin-top: 20px;
+        }
 
-<button onclick="findNearestColor()">Finden Sie die nächstgelegene Farbe</button>
+        #uploadButton {
+            background-color: #4A90E2;
+        }
 
-<p id="result"></p>
+        #toggleDarkModeButton {
+            background-color: #8e44ad;
+        }
+
+        #mainPage {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #imageContainer {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        #resultsContainer {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+        }
+
+        textarea {
+            background-color: white; /* Hinzugefügt */
+            color: black; /* Hinzugefügt */
+        }
+
+        .main-button {
+            width: auto; /* Änderung hier */
+            padding: 10px 20px; /* Änderung hier */
+        }
+
+            .dark-mode {
+                background-color: #121212;
+                color: white;
+            }
+            
+            .dark-mode textarea, .dark-mode button, .dark-mode input[type="button"], .dark-mode input[type="number"], .dark-mode span {
+                background-color: black;
+                color: white;
+            }
+
+            .dark-mode .container {
+                background-color: #121212; /* Oder jede andere Farbe, die Sie bevorzugen */
+                color: white;
+            }
+
+            
+            button {
+                background-color: #4A90E2;
+                color: white;
+                border-radius: 5px;
+                border: none;
+                padding: 5px 10px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin-top:10px;
+                cursor:pointer;
+            }
+            
+            body {
+                font-family:'Arial', sans-serif;
+                color:#4A4A4A;
+            }
+
+            #startPage {
+                overflow: hidden;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-align: center;
+            }
+
+            #uploadAndAnalyzeSection > * {
+                flex-grow: 1;
+            }
+
+        </style>
+        
+    </head>
+    <body style="zoom: 110%; display: flex; justify-content: center; align-items: flex-start; height: 100vh; margin-top: 20px;">    
+    <div id="startPage" class="container">
+        <h1>Willkommen auf unserer Webseite!</h1>
+        <p>Bitte laden Sie ein Bild hoch, um fortzufahren.</p>
+        <button id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="margin-bottom: 10px;">Datei auswählen</button>
+        <button id="toggleDarkModeButton1">Dark Mode</button>
+    </div>
+<div id="mainPage" class="container" >     
+    <div id="imageContainer" style="flex: 1 1 auto; min-width: 500px; flex-direction: column;">        
+        <div id="uploadAndAnalyzeSection" style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; width: 60vw;">
+            <input type="file" id="imageUpload" style="display: none;" onchange="updateFileName(); showElements();" />
+            <button class="main-button" id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="flex-grow: 1;">Datei auswählen</button>
+            <span id="fileName" style="flex-grow: 1;"></span>
+            <input type="number" id="length" placeholder="Länge in cm" style="flex-grow: 1;" />
+            <button class="main-button" id="analyzeButton" style="flex-grow: 1;">Analyze</button>
+        </div>
+        <div style="position: relative; width: 100%; max-height: 600px; max-width: 1000px;">
+            <img id="preview" style="max-width: 100%; max-height: 600px; object-fit: contain;" onload="adjustLayout()" />
+            <canvas id="overlay" style="position: absolute; top: 0; left: 0; pointer-events: none; max-width: 100%; max-height: 600px; display: none;"></canvas>
+        </div>
+        <div id="buttonSection" style="display: flex; justify-content: center; align-items: center;">
+            <button class="main-button" id="toggleOverlayButton">Toggle Overlay</button>
+            <input type="range" min="0" max="255" value="255" class="slider" id="transparencySlider">
+            <button class="main-button" id="downloadButton">Download Overlay</button>
+            <button class="main-button" id="toggleDarkModeButton2">Dark Mode</button>
+        </div>
+    </div>
+    <div id="resultsContainer" style="flex: 1 1 auto; min-width: 250px; margin-left: 20px;">
+        <textarea id="results" style="width: 100%; height: 300px; resize: none; border: none;" readonly></textarea>
+    </div>
+    </div>
+    
+    
 
 <script>
 var farben = {
@@ -31,59 +181,231 @@ var farben = {
     'beige': [245,245,220]
 };
 
-function findNearestColor() {
-    var r = document.getElementById("r").value;
-    var g = document.getElementById("g").value;
-    var b = document.getElementById("b").value;
-
-    var nearestColor = "";
-    var nearestDistance = Infinity;
-
-    // Generieren Sie alle möglichen Kombinationen von 2 bis 4 Farben
-    for (var r = 2; r <= 4; r++) {
-        var farbkombis = combinations(Object.keys(farben), r);
-        for (var i = 0; i < farbkombis.length; i++) {
-            var farbkombi = farbkombis[i];
-            var mix_color = averageColor(farbkombi);
-            var distance = colorDistance([r,g,b], mix_color);
-            if (distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestColor = farbkombi;
-            }
+function showElements() {
+    document.getElementById('startPage').style.display = 'none';
+    document.getElementById('mainPage').style.display = 'flex';
+    document.body.style.overflow = 'auto';
+    const elements = document.querySelectorAll('#imageContainer > *');
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].id !== 'uploadButton') {
+            elements[i].style.display = 'block';
         }
     }
-
-    document.getElementById("result").innerHTML = "Die nächstgelegene Farbe ist " + nearestColor.join(", ");
 }
 
-function combinations(arr, r) {
-    var result = [];
-    var f = function(prefix, arr) {
-        for (var i = 0; i < arr.length; i++) {
-            result.push(prefix.concat(arr[i]));
-            if (prefix.length + 1 < r) {
-                f(prefix.concat(arr[i]), arr.slice(i + 1));
-            }
+window.onload = function() {
+    document.getElementById('mainPage').style.display = 'none';
+    document.body.style.overflow = 'hidden';
+    const elements = document.querySelectorAll('#imageContainer > *');
+    for (let i = 0; i < elements.length; i++) {
+        if (elements[i].id !== 'uploadButton') {
+            elements[i].style.display = 'none';
         }
     }
-    f([], arr);
-    return result;
 }
 
-function averageColor(colors) {
-    var sum_color = [0, 0, 0];
-    for (var i = 0; i < colors.length; i++) {
-        var color = farben[colors[i]];
-        sum_color[0] += color[0];
-        sum_color[1] += color[1];
-        sum_color[2] += color[2];
+function closestColor(rgb) {
+    let colorDiff = Infinity;
+    let closestColor;
+    for (let color in colors) {
+        const diff = Math.abs(rgb[0] - colors[color][0]) + Math.abs(rgb[1] - colors[color][1]) + Math.abs(rgb[2] - colors[color][2]);
+        if (diff < colorDiff) {
+            colorDiff = diff;
+            closestColor = color;
+        }
     }
-    return sum_color.map(function(x) { return x / colors.length; });
+    return closestColor;
 }
 
-function colorDistance(color1, color2) {
-    return Math.sqrt(Math.pow(color1[0] - color2[0], 2) + Math.pow(color1[1] - color2[1], 2) + Math.pow(color1[2] - color2[2], 2));
+function analyzeImage() {
+        const fileInput = document.getElementById('imageUpload');
+        const lengthInput = document.getElementById('length');
+        const file = fileInput.files[0];
+        const lengthInCm = lengthInput.value;
+
+        // Check if file and length are provided
+        if (!file || !lengthInCm) {
+            alert('Please select a file and enter the length.');
+            return;
+        }
+
+        const img = new Image();
+        img.src = URL.createObjectURL(file);
+
+        img.onload = function() {
+            // Show a preview of the image
+            document.getElementById('preview').src = img.src;
+
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+            const overlayCtx = document.getElementById('overlay').getContext('2d');
+            overlayCtx.canvas.width = img.width;
+            overlayCtx.canvas.height = img.height;
+
+const overlayImageData = overlayCtx.createImageData(canvas.width, canvas.height);
+
+            const colorCounts = {};
+
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const r = imageData.data[i];
+                const g = imageData.data[i+1];
+                const b = imageData.data[i+2];
+
+                const colorName = closestColor([r,g,b]);
+                colorCounts[colorName] = (colorCounts[colorName] || 0) + 1;
+
+                // Set overlay pixel to the closest color
+                overlayImageData.data[i]   = colors[colorName][0]; // Red
+                overlayImageData.data[i+1] = colors[colorName][1]; // Green
+                overlayImageData.data[i+2] = colors[colorName][2]; // Blue
+                overlayImageData.data[i+3] = 127; // Alpha (transparency)
+            }
+
+            // Draw the overlay image data to the overlay canvas
+            overlayCtx.putImageData(overlayImageData, 0, 0);
+
+            let totalPixels = canvas.width * canvas.height;
+            let resultsText = '';
+for (let color in colorCounts) {
+                let percentageOfImage = colorCounts[color] / totalPixels;
+                let areaInSquareMeters;
+
+                let widthInMeters = lengthInCm / 100.0;
+                let heightInMeters = widthInMeters * (canvas.height / canvas.width);
+
+                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
+
+                // Nur Farben auflisten, die mehr als 0,1 Quadratmeter des Bildes einnehmen
+                if (areaInSquareMeters > 0.1) {
+                    resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
+                }
+            }
+
+            document.getElementById('results').value = resultsText;
+
+            // Position des Ausgabefelds anpassen
+            adjustLayout();
+        };
 }
+
+document.getElementById('analyzeButton').addEventListener('click', analyzeImage);
+
+// Function to toggle the overlay
+function toggleOverlay() {
+    const overlay = document.getElementById('overlay');
+    const button = document.getElementById('toggleOverlayButton');
+    const slider = document.getElementById('transparencySlider');
+    if (overlay.style.display === 'none') {
+        overlay.style.display = 'block';
+        button.style.backgroundColor = '#4CAF50'; // Green
+        slider.oninput = function() { // Neuer Event-Listener hier
+            overlay.style.opacity = this.value / 255;
+        }
+    } else {
+        overlay.style.display = 'none';
+        button.style.backgroundColor = ''; // Default
+    }
+}
+
+document.getElementById('toggleOverlayButton').addEventListener('click', toggleOverlay);
+
+// Function to download the overlay as a jpg
+function downloadOverlay() {
+    const img = document.getElementById('preview');
+    const overlay = document.getElementById('overlay');
+    const slider = document.getElementById('transparencySlider');
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    
+    const ctx = canvas.getContext('2d');
+    
+    // Draw the original image
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    
+    // Set the global alpha to the slider value
+    ctx.globalAlpha = slider.value / 255;
+    // Draw the overlay on top of the original image
+    ctx.drawImage(overlay, 0, 0, canvas.width, canvas.height);
+
+    // Get the file name of the uploaded image
+    const fileInput = document.getElementById('imageUpload');
+    const fileName = fileInput.files[0].name;
+    
+    const link = document.createElement('a');
+    link.download = 'overlay-' + fileName;
+    link.href = canvas.toDataURL("image/jpeg");
+    link.click();
+}
+
+document.getElementById('downloadButton').addEventListener('click', downloadOverlay);
+
+// Function to toggle the dark mode
+function toggleDarkMode() {
+   var element = document.body; 
+   var button1 = document.getElementById('toggleDarkModeButton1');
+   var button2 = document.getElementById('toggleDarkModeButton2');
+   element.classList.toggle("dark-mode");
+   if (element.classList.contains("dark-mode")) {
+       document.body.style.backgroundColor = "black";
+       button1.style.backgroundColor = '#4CAF50'; // Green
+       button2.style.backgroundColor = '#4CAF50'; // Green
+   } else {
+       document.body.style.backgroundColor = "#f0f0f0";
+       document.body.style.color = "#121212";
+       button1.style.backgroundColor = ''; // Default
+       button2.style.backgroundColor = ''; // Default
+   }
+}
+
+document.getElementById('toggleDarkModeButton1').addEventListener('click', toggleDarkMode);
+document.getElementById('toggleDarkModeButton2').addEventListener('click', toggleDarkMode);
+
+function updateFileName() {
+    const fileInput = document.getElementById('imageUpload');
+    const fileNameDisplay = document.getElementById('fileName');
+    if (fileInput.files.length > 0) {
+        fileNameDisplay.textContent = fileInput.files[0].name;
+    } else {
+        fileNameDisplay.textContent = '';
+    }
+}
+
+function adjustLayout() {
+    const imgElement = document.getElementById('preview');
+    const containerElement = document.getElementById('container');
+    
+    imgElement.onload = function() {
+        if (imgElement.offsetWidth > window.innerWidth / 2) {
+            containerElement.style.flexDirection = 'column';
+        } else {
+            containerElement.style.flexDirection = 'row';
+        }
+    }
+}
+
+window.addEventListener('resize', adjustLayout);
+
+// Füge den Event-Listener zum Datei-Upload-Feld hinzu
+document.getElementById('imageUpload').addEventListener('change', function() {
+    // Setze den Fokus auf das "Länge in cm"-Feld
+    document.getElementById('length').focus();
+
+    // Füge einen Event-Listener hinzu, der auf die Enter-Taste reagiert
+    document.getElementById('length').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') {
+            // Starte die Analyse
+            analyzeImage();
+        }
+    });
+});
+
 </script>
 
 </body>
