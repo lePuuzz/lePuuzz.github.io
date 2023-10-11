@@ -1,86 +1,21 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <style>
-            .dark-mode {
-                background-color: #121212;
-                color: white;
-            }
-            
-            .dark-mode textarea, .dark-mode button, .dark-mode input[type="button"], .dark-mode input[type="number"], .dark-mode span {
-                background-color: #121212;
-                color: #ddd;
-            }
-            
-            button {
-                background-color: #4A90E2;
-                color: white;
-                border-radius: 5px;
-                border: none;
-                padding: 5px 10px;
-                text-align: center;
-                text-decoration: none;
-                display: inline-block;
-                font-size: 16px;
-                margin-top:10px;
-                cursor:pointer;
-            }
-            
-            body {
-                font-family:'Arial', sans-serif;
-                color:#4A4A4A;
-            }
+<body>
 
-            #startPage {
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                text-align: center;
-            }
+<h2>Farbmischer</h2>
 
-            #imageContainer {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
+<p>Geben Sie die RGB-Werte ein:</p>
 
-        </style>
-        
-    </head>
-<body style="zoom: 110%; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
-    <div id="startPage">
-        <h1>Willkommen auf unserer Webseite!</h1>
-        <p>Bitte laden Sie ein Bild hoch, um fortzufahren.</p>
-        <button id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="margin-bottom: 10px;">Datei auswählen</button>
-        <button id="toggleDarkModeButton">Dark Mode</button>
-    </div>    
-    <div id="imageContainer" style="flex: 1 1 auto; min-width: 500px; flex-direction: column;">
-        <div id="uploadAndAnalyzeSection" style="display: flex; justify-content: space-around; align-items: center;">
-            <input type="file" id="imageUpload" style="display: none;" onchange="updateFileName(); showElements();" />
-            <button id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="margin-bottom: 10px;">Datei auswählen</button>
-            <span id="fileName"></span>
-            <input type="number" id="length" placeholder="Länge in cm" />
-            <button id="analyzeButton" onclick="analyzeImage()">Analyze</button>
-        </div>
-        <div style="position: relative; width: 100%; max-height: 600px; max-width: 1000px;">
-            <img id="preview" style="max-width: 100%; max-height: 600px; object-fit: contain;" onload="adjustLayout()" />
-            <canvas id="overlay" style="position: absolute; top: 0; left: 0; pointer-events: none; max-width: 100%; max-height: 600px; display: none;"></canvas>
-        </div>
-        <div id="buttonSection" style="display: flex; justify-content: space-around; align-items: center;">
-            <button id="toggleOverlayButton">Toggle Overlay</button>
-            <button id="toggleDarkModeButton" onclick="toggleDarkMode()">Dark Mode</button>
-        </div>
-    </div>
-    <div id="resultsContainer" style="flex: 1 1 auto; min-width: 250px; margin-left: 20px;">
-        <textarea id="results" style="width: 100%; height: 300px; resize: none; border: none;" readonly></textarea>
-    </div>
-    
-    
+R: <input type="number" id="r" min="0" max="255"><br>
+G: <input type="number" id="g" min="0" max="255"><br>
+B: <input type="number" id="b" min="0" max="255"><br>
+
+<button onclick="findNearestColor()">Finden Sie die nächstgelegene Farbe</button>
+
+<p id="result"></p>
 
 <script>
-// Defining the colors
-const colors = {
+var farben = {
     'rot': [255, 0, 0],
     'gelb': [255, 255, 0],
     'schwarz': [0, 0, 0],
@@ -93,192 +28,63 @@ const colors = {
     'dunkelrot': [139,0,0], // Dunkelrot
     'hellgrün': [144,238,144], // Hellgrün
     'braun': [165,42,42], // Neu hinzugefügt
-    'beige': [245,245,220] // Neu hinzugefügt
+    'beige': [245,245,220]
 };
 
-function showElements() {
-    document.getElementById('startPage').style.display = 'none';
-    document.getElementById('imageContainer').style.display = 'flex';
-    const elements = document.querySelectorAll('#imageContainer > *');
-    for (let i = 0; i < elements.length; i++) {
-        if (elements[i].id !== 'uploadButton') {
-            elements[i].style.display = 'block';
-        }
-    }
-}
+function findNearestColor() {
+    var r = document.getElementById("r").value;
+    var g = document.getElementById("g").value;
+    var b = document.getElementById("b").value;
 
-window.onload = function() {
-    const elements = document.querySelectorAll('#imageContainer > *');
-    for (let i = 0; i < elements.length; i++) {
-        if (elements[i].id !== 'uploadButton') {
-            elements[i].style.display = 'none';
-        }
-    }
-}
+    var nearestColor = "";
+    var nearestDistance = Infinity;
 
-function closestColor(rgb) {
-    let colorDiff = Infinity;
-    let closestColor;
-    for (let color in colors) {
-        const diff = Math.abs(rgb[0] - colors[color][0]) + Math.abs(rgb[1] - colors[color][1]) + Math.abs(rgb[2] - colors[color][2]);
-        if (diff < colorDiff) {
-            colorDiff = diff;
-            closestColor = color;
-        }
-    }
-    return closestColor;
-}
-
-function analyzeImage() {
-        const fileInput = document.getElementById('imageUpload');
-        const lengthInput = document.getElementById('length');
-        const file = fileInput.files[0];
-        const lengthInCm = lengthInput.value;
-
-        // Check if file and length are provided
-        if (!file || !lengthInCm) {
-            alert('Please select a file and enter the length.');
-            return;
-        }
-
-        const img = new Image();
-        img.src = URL.createObjectURL(file);
-
-        img.onload = function() {
-            // Show a preview of the image
-            document.getElementById('preview').src = img.src;
-
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-            const overlayCtx = document.getElementById('overlay').getContext('2d');
-            overlayCtx.canvas.width = img.width;
-            overlayCtx.canvas.height = img.height;
-
-const overlayImageData = overlayCtx.createImageData(canvas.width, canvas.height);
-
-            const colorCounts = {};
-
-            for (let i = 0; i < imageData.data.length; i += 4) {
-                const r = imageData.data[i];
-                const g = imageData.data[i+1];
-                const b = imageData.data[i+2];
-
-                const colorName = closestColor([r,g,b]);
-                colorCounts[colorName] = (colorCounts[colorName] || 0) + 1;
-
-                // Set overlay pixel to the closest color
-                overlayImageData.data[i]   = colors[colorName][0]; // Red
-                overlayImageData.data[i+1] = colors[colorName][1]; // Green
-                overlayImageData.data[i+2] = colors[colorName][2]; // Blue
-                overlayImageData.data[i+3] = 127; // Alpha (transparency)
+    // Generieren Sie alle möglichen Kombinationen von 2 bis 4 Farben
+    for (var r = 2; r <= 4; r++) {
+        var farbkombis = combinations(Object.keys(farben), r);
+        for (var i = 0; i < farbkombis.length; i++) {
+            var farbkombi = farbkombis[i];
+            var mix_color = averageColor(farbkombi);
+            var distance = colorDistance([r,g,b], mix_color);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestColor = farbkombi;
             }
+        }
+    }
 
-            // Draw the overlay image data to the overlay canvas
-            overlayCtx.putImageData(overlayImageData, 0, 0);
+    document.getElementById("result").innerHTML = "Die nächstgelegene Farbe ist " + nearestColor.join(", ");
+}
 
-            let totalPixels = canvas.width * canvas.height;
-            let resultsText = '';
-for (let color in colorCounts) {
-                let percentageOfImage = colorCounts[color] / totalPixels;
-                let areaInSquareMeters;
-
-                let widthInMeters = lengthInCm / 100.0;
-                let heightInMeters = widthInMeters * (canvas.height / canvas.width);
-
-                areaInSquareMeters = percentageOfImage * widthInMeters * heightInMeters;
-
-                // Nur Farben auflisten, die mehr als 0,1 Quadratmeter des Bildes einnehmen
-                if (areaInSquareMeters > 0.1) {
-                    resultsText += `${color}: ${areaInSquareMeters.toFixed(2)} Quadratmeter\n`;
-                }
+function combinations(arr, r) {
+    var result = [];
+    var f = function(prefix, arr) {
+        for (var i = 0; i < arr.length; i++) {
+            result.push(prefix.concat(arr[i]));
+            if (prefix.length + 1 < r) {
+                f(prefix.concat(arr[i]), arr.slice(i + 1));
             }
-
-            document.getElementById('results').value = resultsText;
-
-            // Position des Ausgabefelds anpassen
-            adjustLayout();
-        };
-}
-
-document.getElementById('analyzeButton').addEventListener('click', analyzeImage);
-
-// Function to toggle the overlay
-function toggleOverlay() {
-    const overlay = document.getElementById('overlay');
-    const button = document.getElementById('toggleOverlayButton');
-    if (overlay.style.display === 'none') {
-        overlay.style.display = 'block';
-        button.style.backgroundColor = '#4CAF50'; // Green
-    } else {
-        overlay.style.display = 'none';
-        button.style.backgroundColor = ''; // Default
-    }
-}
-
-document.getElementById('toggleOverlayButton').addEventListener('click', toggleOverlay);
-
-// Function to toggle the dark mode
-function toggleDarkMode() {
-   var element = document.body; 
-   var button = document.getElementById('toggleDarkModeButton');
-   element.classList.toggle("dark-mode");
-   if (element.classList.contains("dark-mode")) {
-       document.body.style.backgroundColor = "#121212";
-       document.body.style.color = "white";
-       button.style.backgroundColor = '#4CAF50'; // Green
-   } else {
-       document.body.style.backgroundColor = "white";
-       document.body.style.color = "#121212";
-       button.style.backgroundColor = ''; // Default
-   }
-}
-
-document.getElementById('toggleDarkModeButton').addEventListener('click', toggleDarkMode);
-
-function updateFileName() {
-    const fileInput = document.getElementById('imageUpload');
-    const fileNameDisplay = document.getElementById('fileName');
-    if (fileInput.files.length > 0) {
-        fileNameDisplay.textContent = fileInput.files[0].name;
-    } else {
-        fileNameDisplay.textContent = '';
-    }
-}
-
-function adjustLayout() {
-    const imgElement = document.getElementById('preview');
-    const containerElement = document.getElementById('container');
-    
-    imgElement.onload = function() {
-        if (imgElement.offsetWidth > window.innerWidth / 2) {
-            containerElement.style.flexDirection = 'column';
-        } else {
-            containerElement.style.flexDirection = 'row';
         }
     }
+    f([], arr);
+    return result;
 }
 
-window.addEventListener('resize', adjustLayout);
+function averageColor(colors) {
+    var sum_color = [0, 0, 0];
+    for (var i = 0; i < colors.length; i++) {
+        var color = farben[colors[i]];
+        sum_color[0] += color[0];
+        sum_color[1] += color[1];
+        sum_color[2] += color[2];
+    }
+    return sum_color.map(function(x) { return x / colors.length; });
+}
 
-// Füge den Event-Listener zum Datei-Upload-Feld hinzu
-document.getElementById('imageUpload').addEventListener('change', function() {
-    // Setze den Fokus auf das "Länge in cm"-Feld
-    document.getElementById('length').focus();
-
-    // Füge einen Event-Listener hinzu, der auf die Enter-Taste reagiert
-    document.getElementById('length').addEventListener('keydown', function(event) {
-        if (event.key === 'Enter') {
-            // Starte die Analyse
-            analyzeImage();
-        }
-    });
-});
-
+function colorDistance(color1, color2) {
+    return Math.sqrt(Math.pow(color1[0] - color2[0], 2) + Math.pow(color1[1] - color2[1], 2) + Math.pow(color1[2] - color2[2], 2));
+}
 </script>
+
 </body>
 </html>
