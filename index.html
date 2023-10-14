@@ -2,11 +2,41 @@
 <html>
     <head>
         <style>
+
+#uploadAndAnalyzeSection {
+    margin-bottom: 20px;
+}
+
+#buttonSection {
+    margin-top: 20px;
+}
+
+#analyzeButton {
+    width: auto;
+    max-width: 200px;
+}
+
+#buttonSection > * {
+    margin: 0;
+    padding: 0;
+    height: 30px;
+}
+
+            * {
+    box-sizing: border-box;
+}
+
+        #uploadAndAnalyzeSection, #buttonSection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 65vw;
+        }
+
         body {
             height: 100vh;
             overflow: hidden;
             font-family: 'Arial', sans-serif;
-            margin: 0;
             background: #f0f0f0;
             display: flex;
             justify-content: center;
@@ -30,6 +60,7 @@
         }
 
         button {
+            margin: 5px;
             display: block;
             width: 100%;
             padding: 10px;
@@ -123,8 +154,18 @@
             }
 
             #uploadAndAnalyzeSection > * {
+                height: 30px;
+                margin: 0;
+                padding: 0;
                 flex-grow: 1;
             }
+
+            #buttonSection > * {
+                height: 30px;
+                margin: 0;
+                padding: 0;
+            }
+
 
         </style>
     </head>
@@ -139,12 +180,12 @@
 
 <div id="mainPage" class="container" >     
     <div id="imageContainer" style="flex: 1 1 auto; min-width: 500px; flex-direction: column;">        
-        <div id="uploadAndAnalyzeSection" style="display: flex; flex-wrap: wrap; justify-content: space-around; align-items: center; width: 60vw;">
+        <div id="uploadAndAnalyzeSection" style="display: flex; flex-wrap: wrap; align-items: center; width: 100%;">
             <input type="file" id="imageUpload" style="display: none;" onchange="updateFileName(); showElements();" />
-            <button class="main-button" id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="flex-grow: 1;">Datei auswählen</button>
-            <span id="fileName" style="flex-grow: 1;"></span>
-            <input type="number" id="length" placeholder="Länge in cm" style="flex-grow: 1;" />
-            <button class="main-button" id="analyzeButton" style="flex-grow: 1;">Analyze</button>
+            <button class="main-button" id="uploadButton" onclick="document.getElementById('imageUpload').click();" style="flex-grow: 1; margin: 2px; padding-left: 2px; padding-right: 2px;">Datei auswählen</button>
+            <span id="fileName" style="flex-grow: 1; margin: 2px; align-items: center; display: flex"></span>
+            <input type="number" id="length" placeholder="Länge in cm" style="flex-grow: 1; margin: 2px" />
+            <button class="main-button" id="analyzeButton" style="flex-grow: 1; margin: 2px; padding-left: 2px; padding-right: 2px">Analyze</button>
         </div>
 
         <div style="position: relative; width: 100%; max-height: 600px; max-width: 1000px;">
@@ -152,11 +193,11 @@
             <canvas id="overlay" style="position: absolute; top: 0; left: 0; pointer-events: none; max-width: 100%; max-height: 600px; display: none;"></canvas>
         </div>
 
-        <div id="buttonSection" style="display: flex; justify-content: center; align-items: center;">
-            <button class="main-button" id="toggleOverlayButton">Toggle Overlay</button>
-            <input type="range" min="0" max="255" value="255" class="slider" id="transparencySlider">
-            <button class="main-button" id="downloadButton">Download Overlay</button>
-            <button class="main-button" id="toggleDarkModeButton2">Dark Mode</button>
+        <div id="buttonSection" style="display: flex; flex-wrap: wrap; align-items: center; width: 100%;">
+            <button class="main-button" id="toggleOverlayButton" style="margin: 2px; padding-left: 2px; padding-right: 2px">Toggle Overlay</button>
+            <input type="range" min="0" max="255" value="255" class="slider" id="transparencySlider" style="margin: 2px">
+            <button class="main-button" id="downloadButton" style="margin: 2px; padding-left: 2px; padding-right: 2px">Download Overlay</button>
+            <button class="main-button" id="toggleDarkModeButton2" style="margin: 2px; padding-left: 2px; padding-right: 2px">Dark Mode</button>
         </div>
     </div>
 
@@ -190,7 +231,7 @@ function showElements() {
     const elements = document.querySelectorAll('#imageContainer > *');
     for (let i = 0; i < elements.length; i++) {
         if (elements[i].id !== 'uploadButton') {
-            elements[i].style.display = 'block';
+            elements[i].style.display = 'flex';
         }
     }
 }
@@ -303,7 +344,7 @@ function toggleOverlay() {
     const button = document.getElementById('toggleOverlayButton');
     const slider = document.getElementById('transparencySlider');
     if (overlay.style.display === 'none') {
-        overlay.style.display = 'block';
+        overlay.style.display = 'flex';
         button.style.backgroundColor = '#4CAF50'; // Green
         slider.oninput = function() { // Neuer Event-Listener hier
             overlay.style.opacity = this.value / 255;
