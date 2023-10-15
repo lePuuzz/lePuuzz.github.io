@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Interaktive Karte mit Ortssuche</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            
+
+        }
+
+        #map-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        #controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-label {
+            margin-bottom: 10px;
+        }
+
+        #density-slider {
+            width: 100%;
+        }
+
+        #search-location {
+            margin-top: 10px;
+        }
+
+        #people-count {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+
+        #map-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .map-button {
+            cursor: pointer;
+            margin-bottom: 10px;
+            padding: 10px 20px;
+            background: #0074D9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .map-button:hover {
+            background: #0056B3;
+        }
+
+         .map-button-small {
+          cursor: pointer;
+         padding: 5px 10px; /* Kleinere Abmessungen */
+         background: #0074D9;
+         color: white;
+         border: none;
+         border-radius: 5px;
+         font-size: 14px; /* Kleinere Schriftgröße */
+         text-align: center;
+         margin-left: 10px; /* Abstand zum "Suchen" Button */
+         }
+
+         .map-button-small:hover {
+         background: #0056B3;
+         }
+
+    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+</head>
+<body>
+    <div id="map-container">
+        <div id="controls">
+            <div class="control-label">
+                <label for="density-slider">Dichte: <span id="density-value">1.0</span> Menschen/m²</label>
+                <input type="range" id="density-slider" min="0.1" max="5" step="0.1" value="1">
+            </div>
+            <!-- ... (Ihr bestehender HTML-Code bleibt unverändert) -->
+
+             <div id="search-location" class="control-label">
+                <label for="location-input">Ort suchen:</label>
+                 <input type="text" id="location-input" placeholder="Ort eingeben">
+                 <button id="location-button">Suchen</button>
+                 <button class="map-button-small" id="satellite-button">
+                     <i class="fas fa-globe"></i>
+                 </button>
+                 <button id="dark-mode-button" class="map-button-small">
+                    <i class="fas fa-moon"></i> Dark Mode
+                 </button>
+             </div>
+
+<!-- ... (Weiterer HTML-Code bleibt unverändert) -->
+
+            <div id="people-count" class="control-label">
+                Menschenanzahl: <span id="people-count-value">0</span>
+            </div>
+        </div>        
+        <div id="map"></div>
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+        <script>
+            var map;
+            var drawnItems;
+            var currentMapLayer;
+            var osmLayer;
+    
+           // Funktion zum Aktivieren des Dark Modes
+function enableDarkMode() {
+    document.body.classList.add('dark-mode'); // Füge der gesamten Seite die CSS-Klasse 'dark-mode' hinzu
+}
+
+// Funktion zum Deaktivieren des Dark Modes
+function disableDarkMode() {
+    document.body.classList.remove('dark-mode'); // Entferne die CSS-Klasse 'dark-mode' von der gesamten Seite
+}
+
+// Überprüfe den aktuellen Dark Mode-Status im Local Storage
+if (localStorage.getItem('darkMode') === 'enabled') {
+    enableDarkMode();
+}
+
+// Event-Listener für den Dark Mode-Button
+var darkModeButton = document.getElementById('dark-mode-button');
+darkModeButton.addEventListener('click', function () {
+    if (document.body.classList.contains('dark-mode')) {
+        disableDarkMode();
+        localStorage.setItem('darkMode', 'disabled'); // Speichere den Dark Mode-Status
+    } else {
+        enableDarkMode();
+        localStorage.setItem('darkMode', 'enabled'); // Speichere den Dark Mode-Status
+    }
+});
+
+    
+
+        document.addEventListener("DOMContentLoaded", function () {
+            map = L.map('map').setView([48.137154, 11.576124], 12);
+
+            osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            currentMapLayer = osmLayer;
+
+            drawnItems = new L.FeatureGroup();
+            var drawControl = new L.Control.Draw({
+                draw: {
+                    polygon: {
+                        allowIntersection: false,
+                        showArea: true,
+                        drawError: {
+                            color: '#e1e100',
+                            timeout: 1000
+                        },
+                        shapeOptions: {
+                            color: '#bada55',
+                            fillOpacity: 0.5
+                        },
+                        autoClose: false
+                    },
+                    polyline: false,
+                    circle: false,
+                    marker: false
+                },
+                edit: {
+                    featureGroup: drawnItems
+                }
+            });
+
+            map.addControl(drawControl);
+            map.addLayer(drawnItems);
+
+            var densitySlider = document.getElementById("density-slider");
+            var densityValue = document.getElementById("density-value");
+            var peopleCountValue = document.getElementById("people-count-value");
+
+            densitySlider.addEventListener("input", function () {
+                var density = parseFloat(densitySlider.value);
+                densityValue.innerText = density.toFixed(1);
+                updateDensity(density);
+            });
+
+
+            map.on(L.Draw.Event.CREATED, function (e) {
+    var layer = e.layer;
+    drawnItems.addLayer(layer);
+    var latlngs = layer.getLatLngs()[0];
+    var areaInSquareMeters = L.GeometryUtil.geodesicArea(latlngs);
+    var density = parseFloat(densitySlider.value);
+    var peopleCount = Math.round(areaInSquareMeters * density);
+
+    var areaInSquareMetersFormatted = areaInSquareMeters.toFixed(2);
+    layer.bindPopup(`Fläche (m²): ${areaInSquareMetersFormatted}<br>Menschen: ${formatPeopleCount(peopleCount)}`).openPopup();
+    layer.setStyle({
+        fillColor: getColor(density),
+        fillOpacity: 0.5,
+        color: getColor(density)
+    });
+
+    // Die Anzeige der Menschenanzahl wird immer im System-Format aktualisiert
+    peopleCountValue.innerText = peopleCount;
+});
+
+function formatPeopleCount(count) {
+    if (count >= 10000) {
+        // Wenn die Menschenanzahl größer oder gleich 10.000 ist, abkürzen
+        return (count / 1000).toFixed(1) + "K";
+    } else {
+        // Ansonsten normal anzeigen
+        return count;
+    }
+}
+
+function formatPeopleCount(count) {
+    if (count >= 10000) {
+        // Wenn die Menschenanzahl größer oder gleich 10.000 ist, normal anzeigen
+        return count;
+    } else {
+        // Ansonsten abkürzen
+        return (count / 1000).toFixed(1) + "K";
+    }
+}
+
+
+
+
+
+            var locationInput = document.getElementById("location-input");
+            var locationButton = document.getElementById("location-button");
+            locationButton.addEventListener("click", searchLocation);
+
+            locationInput.addEventListener("keydown", function (event) {
+                if (event.key === "Enter") {
+                    searchLocation();
+                }
+            });
+
+            function searchLocation() {
+                var locationName = locationInput.value;
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${locationName}&limit=1`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data[0]) {
+                            var lat = parseFloat(data[0].lat);
+                            var lon = parseFloat(data[0].lon);
+                            var displayName = data[0].display_name;
+                            map.setView([lat, lon], 15);
+                            L.marker([lat, lon]).addTo(map).bindPopup(displayName).openPopup();
+                        } else {
+                            alert('Ort nicht gefunden');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fehler bei der Ortssuche: ', error);
+                    });
+            }
+
+            function updateDensity(density) {
+                var layers = drawnItems.getLayers();
+                for (var i = 0; i < layers.length; i++) {
+                    var layer = layers[i];
+                    var latlngs = layer.getLatLngs()[0];
+                    var areaInSquareMeters = L.GeometryUtil.geodesicArea(latlngs);
+                    var peopleCount = Math.round(areaInSquareMeters * density);
+                    var areaInSquareMetersFormatted = areaInSquareMeters.toFixed(2);
+                    layer.setPopupContent(`Fläche (m²): ${areaInSquareMetersFormatted}<br>Menschen: ${peopleCount}`);
+                    layer.setStyle({
+                        fillColor: getColor(density),
+                        fillOpacity: 0.5
+                    });
+                    peopleCountValue.innerText = peopleCount;
+                }
+            }
+
+            function getColor(density) {
+                // Interpolieren Sie die Farbe zwischen Grün und Rot basierend auf der Dichte
+                var minDensity = 0.1;
+                var maxDensity = 5.0;
+                var color1 = [0, 255, 0];
+                var color2 = [255, 0, 0];
+
+                var proportion = (density - minDensity) / (maxDensity - minDensity);
+                var color = [
+                    Math.round(color1[0] + proportion * (color2[0] - color1[0])),
+                    Math.round(color1[1] - proportion * (color1[1] - color2[1])),
+                    Math.round(color1[2] - proportion * (color1[2] - color2[2]))
+                ];
+
+                return `rgb(${color[0]}, ${color[1]}, ${color[2]})`;
+            }
+            var satelliteButton = document.getElementById("satellite-button");
+var satelliteLayer; // Hinzugefügt, um das Satellitenkarten-Layer zu speichern
+
+satelliteButton.addEventListener("click", function () {
+    if (satelliteLayer) {
+        // Wenn das Satellitenkarten-Layer bereits existiert, entferne es und ändere die Farbe des Buttons
+        map.removeLayer(satelliteLayer);
+        satelliteLayer = null; // Setze die Variable zurück
+        satelliteButton.style.backgroundColor = "#0074D9"; // Blaue Farbe, wenn die Satellitenkarte nicht sichtbar ist
+    } else {
+        // Wenn das Satellitenkarten-Layer nicht existiert, füge es hinzu und ändere die Farbe des Buttons
+        satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+        }).addTo(map);
+        satelliteButton.style.backgroundColor = "#905BBF"; // Andere Farbe, z.B., Grün, wenn die Satellitenkarte sichtbar ist
+    }
+         });
+
+
+
+        });
+
+    
+
+    
+    </script>
+
+
+</body>
+</html>
