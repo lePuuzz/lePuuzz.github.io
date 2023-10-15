@@ -306,6 +306,25 @@ function showElements() {
 }
 
 window.onload = function() {
+    // Check to see if Media-Queries are supported
+    if (window.matchMedia) {
+    // Check if the dark-mode Media-Query matches
+    if(window.matchMedia('(prefers-color-scheme: dark)').matches){
+            //dark
+            document.getElementsByClassName("moon")[0].classList.toggle("sun");
+            document.getElementsByClassName("tdnn")[0].classList.toggle("day");
+            toggleDarkMode();
+        } else {
+            // Light
+            document.getElementsByClassName("moon")[0].classList.toggle("sun");
+            document.getElementsByClassName("tdnn")[0].classList.toggle("day");
+    }
+    } else {
+        document.getElementsByClassName("moon")[0].classList.toggle("sun");
+        document.getElementsByClassName("tdnn")[0].classList.toggle("day");
+        toggleDarkMode();
+    }
+    
     document.getElementById('mainPage').style.display = 'none';
     document.body.style.overflow = 'hidden';
     const elements = document.querySelectorAll('#imageContainer > *');
@@ -460,7 +479,7 @@ document.getElementById('downloadButton').addEventListener('click', downloadOver
 // Function to toggle the dark mode
 function toggleDarkMode() {
     document.getElementsByClassName("moon")[0].classList.toggle("sun");
-  document.getElementsByClassName("tdnn")[0].classList.toggle("day");
+    document.getElementsByClassName("tdnn")[0].classList.toggle("day");
 
    var element = document.body; 
 
