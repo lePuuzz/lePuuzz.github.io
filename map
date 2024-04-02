@@ -1,28 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Munich Map</title>
+    <title>München Stadtteile</title>
     <style>
-        /* Add your CSS styles here */
-        #munich-map {
-            width: 100%;
+        /* Stil für die Karte */
+        img {
+            max-width: 100%;
             height: auto;
-        }
-        /* Add hover effects or other custom styles */
-        #munich-districts:hover {
-            fill: #ffcc00; /* Change color on hover */
         }
     </style>
 </head>
 <body>
-    <svg id="munich-map" viewBox="0 0 800 600">
-        <!-- Embed your SVG map here -->
-        <object data="munich-map.svg" type="image/svg+xml"></object>
-        <!-- Add specific areas with IDs -->
-        <path id="munich-districts" d="M100,100 L200,100 L200,200 Z" />
-        <!-- Add more paths for other areas -->
-    </svg>
+    <h1>München Stadtteile</h1>
+    <p>Markiere die Stadtviertel auf der Karte:</p>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3b/M%C3%BCnchen_Stadtteile.png/800px-M%C3%BCnchen_Stadtteile.png" alt="München Stadtteile">
+    <p>Weitere Informationen findest du auf <a href="https://de.wikipedia.org/wiki/Stadtbezirke_M%C3%BCnchens">Wikipedia</a>.</p>
 </body>
 </html>
+
